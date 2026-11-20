@@ -31,16 +31,22 @@ Pillow>=12.2.0
 # to pure polling. Pure-stdlib wrapper, no transitive deps.
 inotify_simple>=2.0.1 ; sys_platform == "linux"
 
-# rmc renders reMarkable .zip / .rmdoc / .rm bundles to PDF. Pulls in rmscene
-# (the .rm parser by the same author) transitively. Its PDF export shells out
-# to Inkscape (SYSTEM package, NOT pip-installable) to rasterize an
-# intermediate SVG — no Chrome or cairo involved:
-#   Debian/Ubuntu : apt-get install inkscape
-#   macOS         : brew install --cask inkscape
-# pdfunite (poppler-utils, already above) merges the per-page PDFs.
-rmc>=0.3
 
-# rmscene is already pulled in transitively by rmc, but rm_strokes.py now
-# imports it directly (STROKE_CONTEXT=1 — stroke-region hints, see README),
-# so it's declared explicitly here too.
-rmscene>=0.6
+# rmc renders reMarkable .zip / .rmdoc / .rm bundles to PDF.
+# The Scrybbling-together fork contains improvements to the original,
+# including text-rendering fixes.
+#
+# It pulls in rmscene (the .rm parser) transitively.
+# For PDF export, it uses CairoSVG to convert intermediate SVG
+# pages to PDF, or Chrome/Chromium when available.
+#
+# Debian/Ubuntu: apt-get install libcairo2
+#
+# pdfunite (poppler-utils, installed above) merges the per-page PDFs.
+rmc @ git+https://github.com/Scrybbling-together/rmc.git@main
+
+# rmscene is a dependency of rmc and is therefore installed transitively.
+# It is also a direct dependency of this project because rm_strokes.py
+# imports it directly (STROKE_CONTEXT=1 - stroke-region hints, see README).
+# We therefore declare it explicitly, using the same Scrybbling-together fork.
+rmscene @ git+https://github.com/Scrybbling-together/rmscene.git@main

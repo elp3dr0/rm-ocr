@@ -4,13 +4,17 @@ FROM python:3.14-slim
 LABEL org.opencontainers.image.source="https://github.com/delize/remarkable-ocr-handwriting" \
       org.opencontainers.image.description="reMarkable -> Obsidian handwriting OCR poller (Qwen3-VL via Ollama)"
 
-# poppler-utils -> pdftoppm/pdfunite for pdf2image and bundle merging.
-# inkscape -> rmc shells out to it to rasterize its intermediate SVG when
-# rendering .zip/.rmdoc/.rm inputs to PDF (not needed for plain .pdf input).
+# poppler-utils -> pdftoppm/pdfunite for PDF rasterisation (via pdf2image)
+# and merging per-page PDFs into a bundle.
+# libcairo2 -> native Cairo library used by CairoSVG, which rmc uses to
+# convert intermediate SVG pages to PDF when rendering .zip/.rmdoc/.rm
+# inputs (not needed for plain .pdf input).
 # apt-get upgrade picks up Debian security fixes newer than the base image
 # (libpcre2 tripped the CVE gate before python:3.14-slim was rebuilt).
+# git -> required by pip to install GitHub dependencies such as the
+# Scrybbling-together rmc and rmscene forks.
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends poppler-utils inkscape \
+    && apt-get install -y --no-install-recommends poppler-utils inkscape git libcairo2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
